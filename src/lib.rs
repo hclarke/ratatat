@@ -9,11 +9,21 @@ pub use parsers::*;
 pub trait Parser<'a,I:?Sized> {
 	type O;
 	fn parse(&self, ctx: &Context<'a,I>, src: &mut &'a [u8]) -> Option<Self::O>;
+}
 
+pub trait ParserExt<'a, I:?Sized>: Parser<'a, I> {
 	/// run is an alias for parse, to make it easier when the parser type has another 'parse' method
 	fn run(&self, ctx: &Context<'a,I>, src: &mut &'a [u8]) -> Option<Self::O> {
 		self.parse(ctx,src)
 	}
+
+	fn map<T, F:Fn(Self::O)->T>(self, f:F) -> Map<Self,F> where Self:Sized{
+		Map(self, f)
+	}
+}
+
+impl<'a,I:?Sized, P:Parser<'a,I>> ParserExt<'a, I> for P {
+
 }
 
 impl<'a,I:?Sized,O,F> Parser<'a,I> for F where F:Fn(&Context<I>, &mut &[u8]) -> Option<O> {
