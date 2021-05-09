@@ -1,54 +1,52 @@
 use elsa::FrozenMap;
-use srcstr::SrcStr;
 use core::any::{Any, TypeId};
  
-use core::ops::Range;
+use std::rc::Rc;
 
+mod parsers;
+pub use parsers::*;
 
-pub type Ctx<'a> = &'a Context<'a>;
-pub type DynParser<'a,O> = &'a (dyn Parser<'a, O=O>+'a);
-
-pub trait Parser<'a> {
+pub trait Parser<'a,I:?Sized> {
 	type O;
-	fn parse(&self, ctx: Ctx<'a>, src: &mut &'a str) -> Option<Self::O>;
+	fn parse(&self, ctx: &Context<'a,I>, src: &mut &'a [u8]) -> Option<Self::O>;
 
 	/// run is an alias for parse, to make it easier when the parser type has another 'parse' method
-	fn run(&self, ctx: Ctx<'a>, src: &mut &'a str) -> Option<Self::O> {
+	fn run(&self, ctx: &Context<'a,I>, src: &mut &'a [u8]) -> Option<Self::O> {
 		self.parse(ctx,src)
 	}
 }
 
-impl<'a,O,F> Parser<'a> for F where F:Fn(&Context, &mut &str) -> Option<O> {
+impl<'a,I:?Sized,O,F> Parser<'a,I> for F where F:Fn(&Context<I>, &mut &[u8]) -> Option<O> {
 	type O = O;
-	fn parse(&self, ctx: Ctx<'a>, src: &mut &'a str) -> Option<Self::O> {
+	fn parse(&self, ctx: &Context<'a, I>, src: &mut &'a [u8]) -> Option<Self::O> {
 		self(ctx, src)
 	}
 }
 
-pub trait Generator<'a>:Any {
+pub trait Generator<'a,I:?Sized>:Any {
 	type O;
-	fn generate(ctx: Ctx<'a>) -> Box<dyn Parser<'a, O=Self::O>>;
+	fn generate(ctx: &Context<'a,I>) -> Rc<dyn Parser<'a, I, O=Self::O>+'a>;
 }
 
 
 
 
-struct GeneratedParser<'a, G:Generator<'a>>(Box<dyn Parser<'a, O=G::O>+'a>);
+struct GeneratedParser<'a, I:?Sized, G:Generator<'a,I>>(Rc<dyn Parser<'a, I, O=G::O>+'a>);
 
-trait Generated<'a>:'a {
+trait Generated<'a,I:?Sized>:'a {
 	fn generated_by(&self) -> TypeId;
 }
-impl<'a, G:Generator<'a>> Generated<'a> for GeneratedParser<'a, G> {
+impl<'a, I:?Sized+'a, G:Generator<'a, I>> Generated<'a,I> for GeneratedParser<'a, I, G> {
 	fn generated_by(&self) -> TypeId {
 		TypeId::of::<G>()
 	}
 }
-impl<'a> dyn Generated<'a> {
-	fn downcast<G:Generator<'a>>(&'a self) -> Option<&'a dyn Parser<'a, O=G::O>> {
+impl<'a,I:?Sized+'a> dyn Generated<'a,I> {
+	fn downcast<G:Generator<'a,I>>(&self) -> Option<&Rc<dyn Parser<'a, I, O=G::O>+'a>> {
 		if TypeId::of::<G>() == self.generated_by() {
 			return unsafe {
-				let wrapper = &*(self as *const dyn Generated<'a> as *const GeneratedParser<'a,G>);
-				Some(&*wrapper.0)
+				let wrapper = &*(self as *const dyn Generated<'a, I> as *const GeneratedParser<'a,I,G>);
+				Some(&wrapper.0)
 			};
 		}
 
@@ -56,31 +54,30 @@ impl<'a> dyn Generated<'a> {
 	}
 }
 
-pub struct Context<'a> {
-	source: &'a SrcStr,
-	parsers: FrozenMap<TypeId, Box<dyn Generated<'a>+'a>>,
+pub struct Context<'a, I:?Sized> {
+	pub source: &'a I,
+	parsers: FrozenMap<TypeId, Box<dyn Generated<'a, I>+'a>>,
 }
 
-impl<'a> Context<'a> {
-	pub fn new(source: &'a SrcStr) -> Self {
-
+impl<'a,I:?Sized> Context<'a,I> {
+	pub fn new(source: &'a I) -> Self {
 		Context {
 			source,
 			parsers: FrozenMap::new(),
 		}
 	}
 
-	pub fn init_parser<G:Generator<'a>>(&'a self, parser: Box<dyn Parser<'a, O=G::O> +'a>) {
+	pub fn init_parser<G:Generator<'a,I>>(&self, parser: Rc<dyn Parser<'a, I, O=G::O>+'a>) {
 		let id = TypeId::of::<G>();
 
 		assert!(self.parsers.get(&id).is_none());
 
-		let parser = GeneratedParser::<'a,G>(parser);
+		let parser = GeneratedParser::<'a,I,G>(parser);
 		let parser = Box::new(parser);
 		self.parsers.insert(id, parser);
 	}
 
-	pub fn parser<G:Generator<'a>>(&'a self) -> DynParser<'a, G::O> {
+	pub fn parser<G:Generator<'a, I>>(&self) -> &Rc<dyn Parser<'a, I, O=G::O>+'a> {
 		let id = TypeId::of::<G>();
 
 		let parser = self.parsers.get(&id);
@@ -98,7 +95,7 @@ impl<'a> Context<'a> {
 		parser.downcast::<G>().unwrap()
 	}
 
-	pub fn parse<G:Generator<'a>>(&'a self, input: &mut &'a str) -> Option<G::O> {
+	pub fn parse<G:Generator<'a, I>>(&self, input: &mut &'a [u8]) -> Option<G::O> {
 		let parser = self.parser::<G>();
 		parser.parse(self, input)
 	}
