@@ -6,7 +6,6 @@ use core::borrow::Borrow;
 
 mod parsers;
 pub use parsers::*;
-mod batteries;
 
 pub trait Parser<'a,I:?Sized> {
 	type O;
