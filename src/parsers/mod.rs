@@ -8,6 +8,8 @@ mod range;
 mod array;
 mod many;
 mod memo;
+mod bool;
+mod char;
 
 pub use map::Map;
 pub use parse::parser;
