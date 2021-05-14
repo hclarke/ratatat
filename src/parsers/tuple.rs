@@ -4,8 +4,19 @@ macro_rules! impl_tuple {
 	($($i:tt:$P:tt),*) => {
 		impl<'a, I:?Sized $(,$P:Parser<'a, I>)*> Parser<'a, I> for ($($P,)*) {
 			type O = ($($P::O,)*);
-			fn parse(&self, ctx: &Context<'a, I>, src: &mut &'a [u8]) -> Option<Self::O> {
-				Some(($(self.$i.parse(ctx, src)?,)*))
+			fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+				Some(($(self.$i.parse(ctx, limit, pos)?,)*))
+			}
+		}
+
+		impl<'a, I:?Sized $(,$P:Generator<'a, I>)*> Generator<'a, I> for ($($P,)*) {
+			type O = ($($P::O,)*);
+			fn generate(ctx: &Context<'a, I>) -> Rc<dyn Parser<'a, I, O=Self::O>+'a> {
+				let rc = Rc::new(($(
+					ctx.parser::<$P>().clone(),
+				)*));
+
+				rc as Rc<dyn Parser<'a, I, O=Self::O>+'a>
 			}
 		}
 	}
@@ -28,11 +39,9 @@ mod test {
 
 	#[test]
 	fn parse_tuple() {
-		let mut src = &b"hello world"[..];
-		let ctx = Context::new(src);
-
-		assert_eq!(Some(("hello", " ", "world")), ("hello", " ", "world").parse(&ctx, &mut src));
-		assert_eq!(b"", src);
+		let parser = ("hello", " ", "world");
+		let result = parser.parse_str("hello world");
+		assert_eq!(Some(("hello", " ", "world")), result);
 	}
 }
 

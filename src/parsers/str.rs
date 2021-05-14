@@ -1,18 +1,18 @@
 use crate::*;
-use core::ops::Deref;
 
 impl<'a,'b, I:?Sized> Parser<'a, I> for &'b str {
 	type O = &'a str;
-	fn parse(&self, _ctx: &Context<'a, I>, src: &mut &'a [u8]) -> Option<Self::O> {
+	fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
 		let bytes = self.as_bytes();
 
+		let src = &ctx.bytes[*pos..limit];
 		if src.len() < self.len() {
 			return None;
 		}
 
 		let prefix = &src[..bytes.len()];
 		if prefix == bytes {
-			*src = &src[bytes.len()..];
+			*pos += self.len();
 
 			// we know this is safe, because prefix matched a valid utf8 string
 			let prefix = unsafe {
@@ -29,16 +29,14 @@ impl<'a,'b, I:?Sized> Parser<'a, I> for &'b str {
 #[cfg(test)]
 mod test {
 	use super::*;
-	use srcstr::SrcStr;
 
 	#[test]
 	fn str_parser() {
-		let src = b"hello world";
-		let mut src = &src[..];
 
-		let ctx = &Context::new(src);
-		assert_eq!(Some("hello"), "hello".run(&ctx, &mut src));
-		assert_eq!(b" world", src);
+		let ctx = &Context::from_str("hello world");
+		let mut pos = 0;
+		assert_eq!(Some("hello"), "hello".run(&ctx, ctx.bytes.len(), &mut pos));
+		assert_eq!(5, pos);
 		
 
 	}

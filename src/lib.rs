@@ -2,23 +2,49 @@ use elsa::FrozenMap;
 use core::any::{Any, TypeId};
  
 use std::rc::Rc;
+use core::borrow::Borrow;
 
 mod parsers;
 pub use parsers::*;
+mod batteries;
 
 pub trait Parser<'a,I:?Sized> {
 	type O;
-	fn parse(&self, ctx: &Context<'a,I>, src: &mut &'a [u8]) -> Option<Self::O>;
+	fn parse(&self, ctx: &Context<'a,I>, limit: usize, pos: &mut usize) -> Option<Self::O>;
+}
+
+pub type DynParser<'a,I,O> = dyn Parser<'a, I, O=O>+'a;
+
+pub struct Context<'a, I:?Sized> {
+	pub source: &'a I,
+	pub bytes: &'a [u8],
+	parsers: FrozenMap<TypeId, Box<dyn Generated<'a, I>+'a>>,
 }
 
 pub trait ParserExt<'a, I:?Sized>: Parser<'a, I> {
 	/// run is an alias for parse, to make it easier when the parser type has another 'parse' method
-	fn run(&self, ctx: &Context<'a,I>, src: &mut &'a [u8]) -> Option<Self::O> {
-		self.parse(ctx,src)
+	fn run(&self, ctx: &Context<'a,I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+		self.parse(ctx, limit, pos)
 	}
 
 	fn map<T, F:Fn(Self::O)->T>(self, f:F) -> Map<Self,F> where Self:Sized{
 		Map(self, f)
+	}
+
+	fn parse_bytes(&self, input: &'a I) -> Option<Self::O> 
+	where
+		I:Borrow<[u8]>,
+	{	
+		let ctx = Context::from_bytes(input);
+		self.parse(&ctx, ctx.bytes.len(), &mut 0)
+	}
+
+	fn parse_str(&self, input: &'a I) -> Option<Self::O> 
+	where
+		I:Borrow<str>,
+	{
+		let ctx = Context::from_str(input);
+		self.parse(&ctx, ctx.bytes.len(), &mut 0)
 	}
 }
 
@@ -26,10 +52,10 @@ impl<'a,I:?Sized, P:Parser<'a,I>> ParserExt<'a, I> for P {
 
 }
 
-impl<'a,I:?Sized,O,F> Parser<'a,I> for F where F:Fn(&Context<I>, &mut &[u8]) -> Option<O> {
+impl<'a,I:?Sized,O,F> Parser<'a,I> for F where F:Fn(&Context<I>, usize, &mut usize) -> Option<O> {
 	type O = O;
-	fn parse(&self, ctx: &Context<'a, I>, src: &mut &'a [u8]) -> Option<Self::O> {
-		self(ctx, src)
+	fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+		self(ctx, limit, pos)
 	}
 }
 
@@ -64,17 +90,27 @@ impl<'a,I:?Sized+'a> dyn Generated<'a,I> {
 	}
 }
 
-pub struct Context<'a, I:?Sized> {
-	pub source: &'a I,
-	parsers: FrozenMap<TypeId, Box<dyn Generated<'a, I>+'a>>,
-}
+
 
 impl<'a,I:?Sized> Context<'a,I> {
-	pub fn new(source: &'a I) -> Self {
+	pub fn new(source: &'a I, bytes: &'a [u8]) -> Self {
 		Context {
 			source,
+			bytes,
 			parsers: FrozenMap::new(),
 		}
+	}
+
+	pub fn from_str(input: &'a I) -> Self where I:Borrow<str> {
+
+		let src = input.borrow();
+		let src = src.as_ref();
+		Context::new(input, src)
+	}
+
+	pub fn from_bytes(input: &'a I) -> Self where I:Borrow<[u8]> {
+		let src = input.borrow();
+		Context::new(input, src)
 	}
 
 	pub fn init_parser<G:Generator<'a,I>>(&self, parser: Rc<dyn Parser<'a, I, O=G::O>+'a>) {
@@ -105,8 +141,8 @@ impl<'a,I:?Sized> Context<'a,I> {
 		parser.downcast::<G>().unwrap()
 	}
 
-	pub fn parse<G:Generator<'a, I>>(&self, input: &mut &'a [u8]) -> Option<G::O> {
+	pub fn parse<G:Generator<'a, I>>(&self, limit: usize, pos: &mut usize) -> Option<G::O> {
 		let parser = self.parser::<G>();
-		parser.parse(self, input)
+		parser.parse(self, limit, pos)
 	}
 }

@@ -9,7 +9,7 @@ where
 	F: Fn(P::O) -> O,
 {
 	type O = O;
-	fn parse(&self, ctx: &Context<'a, I>, src: &mut &'a [u8]) -> Option<O> {
-		self.0.parse(ctx, src).map(&self.1)
+	fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<O> {
+		self.0.parse(ctx, limit, pos).map(&self.1)
 	}
 }
