@@ -52,7 +52,7 @@ impl<'a,I:?Sized, P:Parser<'a,I>> ParserExt<'a, I> for P {
 
 }
 
-impl<'a,I:?Sized,O,F> Parser<'a,I> for F where F:Fn(&Context<I>, usize, &mut usize) -> Option<O> {
+impl<'a,I:?Sized,O,F> Parser<'a,I> for F where F:Fn(&Context<'a, I>, usize, &mut usize) -> Option<O> {
 	type O = O;
 	fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
 		self(ctx, limit, pos)
