@@ -1,16 +1,16 @@
-mod str;
-mod ptr;
-mod tuple;
-mod slice;
-mod map;
-mod parse;
-mod range;
 mod array;
-mod many;
-mod memo;
 mod bool;
 mod char;
+mod many;
+mod map;
+mod memo;
+mod parse;
+mod ptr;
+mod range;
+mod slice;
+mod str;
+mod tuple;
 
+pub use many::Many;
 pub use map::Map;
 pub use parse::parser;
-pub use many::Many;
