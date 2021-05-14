@@ -7,6 +7,7 @@ mod parse;
 mod range;
 mod array;
 mod many;
+mod memo;
 
 pub use map::Map;
 pub use parse::parser;
