@@ -6,7 +6,6 @@ impl<'a, I:?Sized, G:Generator<'a, I>, const N: usize> Generator<'a, I> for [G;N
 	type O = [G::O; N];
 	fn generate(ctx: &Context<'a, I>) -> Rc<DynParser<'a, I, Self::O>> {
 		let parser = ctx.parser::<G>().clone();
-		//Rc::new(Array::<_, N>(parser))
 		let f = move |ctx: &Context<'a, I>, limit: usize, pos: &mut usize| {
 			try_array_init(|_| {
 				parser.parse(ctx, limit, pos).ok_or(())
