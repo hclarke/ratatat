@@ -33,6 +33,27 @@ pub trait ParserExt<'a, I: ?Sized>: Parser<'a, I> {
         Map(self, f)
     }
 
+    fn filter<F: Fn(&Self::O) -> bool>(self, f:F) -> Filter<Self,F> 
+    where
+        Self: Sized,
+    {
+        Filter(self, f)
+    }
+
+    fn then<T, F: Fn(Self::O) -> Option<T>>(self, f:F) -> FilterMap<Self,F> 
+    where
+        Self: Sized,
+    {
+        FilterMap(self, f)
+    }
+
+    fn recognize(self) -> Recognize<Self> 
+    where
+        Self:Sized,
+    {
+        Recognize(self)
+    }
+
     fn parse_bytes(&self, input: &'a I) -> Option<Self::O>
     where
         I: Borrow<[u8]>,

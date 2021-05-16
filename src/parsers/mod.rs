@@ -10,7 +10,15 @@ mod range;
 mod slice;
 mod str;
 mod tuple;
+mod vec;
+mod sep;
+mod filter;
+mod recognize;
 
 pub use many::Many;
 pub use map::Map;
 pub use parse::parser;
+pub use sep::Sep;
+pub use filter::*;
+pub use recognize::*;
+pub use tuple::Alt;

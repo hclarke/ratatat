@@ -1,5 +1,7 @@
 use crate::*;
 
+pub struct Alt<T>(pub T);
+
 macro_rules! impl_tuple {
 	($($i:tt:$P:tt),*) => {
 		impl<'a, I:?Sized $(,$P:Parser<'a, I>)*> Parser<'a, I> for ($($P,)*) {
@@ -17,6 +19,31 @@ macro_rules! impl_tuple {
 				)*));
 
 				rc as Rc<dyn Parser<'a, I, O=Self::O>+'a>
+			}
+		}
+
+		impl<'a, I:?Sized, O, $($P:Parser<'a, I, O=O>),*> Parser<'a, I> for Alt<($($P,)*)> {
+			type O = O;
+			fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+				let reset = *pos;
+				$(
+					if let Some(res) = self.0.$i.parse(ctx, limit, pos) {
+						return Some(res);
+					}
+
+					*pos = reset;
+				)*
+
+				None
+			}
+		}
+
+		impl<'a, I:?Sized, O:'a, $($P:Generator<'a, I, O=O>),*> Generator<'a, I> for Alt<($($P,)*)> {
+			type O=O;
+			fn generate(ctx: &Context<'a, I>) -> Rc<DynParser<'a, I, Self::O>> {
+				Rc::new(Alt(($(
+					ctx.parser::<$P>().clone(),
+				)*)))
 			}
 		}
 	}

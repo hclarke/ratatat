@@ -1,7 +1,13 @@
 use crate::*;
 use core::marker::PhantomData;
 
-pub struct Parse<G>(PhantomData<G>);
+pub struct Parse<G>(PhantomData<*const G>);
+impl<G> Clone for Parse<G> {
+	fn clone(&self) -> Self {
+		*self
+	}
+}
+impl<G> Copy for Parse<G> {}
 
 pub fn parser<G>() -> Parse<G> {
     Parse(PhantomData)

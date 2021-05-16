@@ -2,6 +2,7 @@ use crate::*;
 use core::ops::Bound;
 use core::ops::RangeBounds;
 
+#[derive(Clone)]
 pub struct Many<P, R>(pub P, pub R);
 
 impl<'a, I: ?Sized, P: Parser<'a, I>, R: RangeBounds<usize>> Parser<'a, I> for Many<P, R> {
