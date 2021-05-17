@@ -1,28 +1,25 @@
 use core::any::{Any, TypeId};
 use elsa::FrozenMap;
 
-
-use std::rc::Rc;
-use std::ops::Deref;
 use core::ops::RangeBounds;
-
+use std::ops::Deref;
+use std::rc::Rc;
 
 #[cfg(test)]
 #[macro_use]
 mod test_macro {
     macro_rules! assert_parse {
         ($exp: expr, $parser: expr, $input: expr) => {
-            let input : &[u8] = $input.as_ref();
+            let input: &[u8] = $input.as_ref();
             let input = Rc::new(input.to_owned());
             let input = Shared::new(input);
             let ctx = Context::new(&input);
             let mut pos = 0;
             let res = $parser.parse(&ctx, ctx.bytes.len(), &mut pos);
             assert_eq!($exp, res);
-        }
+        };
     }
 }
-
 
 mod parsers;
 pub use parsers::*;
@@ -56,30 +53,30 @@ pub trait ParserExt<'a>: Parser<'a> {
         Map(self, f)
     }
 
-    fn filter<F: Fn(&Self::O) -> bool>(self, f:F) -> Filter<Self,F> 
+    fn filter<F: Fn(&Self::O) -> bool>(self, f: F) -> Filter<Self, F>
     where
         Self: Sized,
     {
         Filter(self, f)
     }
 
-    fn then<T, F: Fn(Self::O) -> Option<T>>(self, f:F) -> FilterMap<Self,F> 
+    fn then<T, F: Fn(Self::O) -> Option<T>>(self, f: F) -> FilterMap<Self, F>
     where
         Self: Sized,
     {
         FilterMap(self, f)
     }
 
-    fn recognize(self) -> Recognize<Self> 
+    fn recognize(self) -> Recognize<Self>
     where
-        Self:Sized,
+        Self: Sized,
     {
         Recognize(self)
     }
 
-    fn many<R:RangeBounds<usize>>(self, r: R) -> Many<Self> 
+    fn many<R: RangeBounds<usize>>(self, r: R) -> Many<Self>
     where
-        Self:Sized,
+        Self: Sized,
     {
         Many::new(self, r)
     }
@@ -116,8 +113,7 @@ impl<'a> dyn Generated<'a> {
     fn downcast<G: Generator<'a>>(&self) -> Option<&Rc<dyn Parser<'a, O = G::O> + 'a>> {
         if TypeId::of::<G>() == self.generated_by() {
             return unsafe {
-                let wrapper =
-                    &*(self as *const dyn Generated<'a> as *const GeneratedParser<'a, G>);
+                let wrapper = &*(self as *const dyn Generated<'a> as *const GeneratedParser<'a, G>);
                 Some(&wrapper.0)
             };
         }

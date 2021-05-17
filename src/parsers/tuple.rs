@@ -76,6 +76,10 @@ mod test {
 
     #[test]
     fn parse_tuple() {
-        assert_parse!(Some(("hello", " ", "world")), ("hello", " ", "world"), "hello world");
+        assert_parse!(
+            Some(("hello", " ", "world")),
+            ("hello", " ", "world"),
+            "hello world"
+        );
     }
 }

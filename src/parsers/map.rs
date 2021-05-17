@@ -1,6 +1,6 @@
 use crate::*;
 
-#[derive(Copy,Clone)]
+#[derive(Copy, Clone)]
 pub struct Map<P, F>(pub P, pub F);
 
 impl<'a, O, P, F> Parser<'a> for Map<P, F>

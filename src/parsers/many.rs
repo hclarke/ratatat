@@ -6,8 +6,7 @@ use core::ops::RangeBounds;
 pub struct Many<P>(pub P, pub usize, pub usize);
 
 impl<P> Many<P> {
-    pub fn new<R: RangeBounds<usize>>(p:P, r:R) -> Many<P> {
-
+    pub fn new<R: RangeBounds<usize>>(p: P, r: R) -> Many<P> {
         let min = match r.start_bound() {
             Bound::Included(n) => *n,
             Bound::Excluded(n) => *n + 1,
@@ -21,7 +20,6 @@ impl<P> Many<P> {
         };
 
         Many(p, min, max)
-
     }
 }
 
@@ -34,8 +32,6 @@ impl<'a, P: Parser<'a>> Parser<'a> for Many<P> {
             let res = self.0.parse(ctx, limit, pos)?;
             v.push(res);
         }
-
-
 
         for _ in self.1..self.2 {
             let rewind = *pos;

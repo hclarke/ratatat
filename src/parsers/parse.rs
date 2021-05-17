@@ -3,9 +3,9 @@ use core::marker::PhantomData;
 
 pub struct Parse<G>(PhantomData<*const G>);
 impl<G> Clone for Parse<G> {
-	fn clone(&self) -> Self {
-		*self
-	}
+    fn clone(&self) -> Self {
+        *self
+    }
 }
 impl<G> Copy for Parse<G> {}
 
