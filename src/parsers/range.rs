@@ -61,7 +61,7 @@ mod test {
 
     #[test]
     fn range_parser() {
-        assert_eq!(Some('d'), ('a'..'z').parse_str("d"));
-        assert_eq!(None, ('a'..'z').parse_str("D"));
+        assert_parse!(Some('d'), ('a'..'z'), "d");
+        assert_parse!(None, ('a'..'z'), "D");
     }
 }

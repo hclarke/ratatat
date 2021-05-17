@@ -49,13 +49,10 @@ mod test {
 
     #[test]
     fn char_parser() {
-        assert_eq!(Some(vec!['a', 'a', 'a']), Many('a', ..).parse_str("aaab"));
-        assert_eq!(Some(vec!['a', 'a', 'a']), Many('a', ..3).parse_str("aaaa"));
+        assert_parse!(Some(vec!['a', 'a', 'a']), Many('a', ..), "aaab");
+        assert_parse!(Some(vec!['a', 'a', 'a']), Many('a', ..3), "aaaa");
 
-        assert_eq!(
-            Some(vec!['a', 'a', 'a', 'a']),
-            Many('a', 3..).parse_str("aaaa")
-        );
-        assert_eq!(None, Many('a', 3..).parse_str("aa"));
+        assert_parse!(Some(vec!['a', 'a', 'a', 'a']), Many('a', 3..), "aaaa");
+        assert_parse!(None, Many('a', 3..), "aa");
     }
 }

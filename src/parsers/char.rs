@@ -45,12 +45,12 @@ mod test {
 
     #[test]
     fn char_parser() {
-        assert_eq!(Some('a'), 'a'.parse_str("a"));
-        assert_eq!(Some('∆'), '∆'.parse_str("∆"));
-        assert_eq!(None, 'a'.parse_str("ø"));
+        assert_parse!(Some('a'), 'a', "a");
+        assert_parse!(Some('∆'), '∆', "∆");
+        assert_parse!(None, 'a', "ø");
 
-        assert_eq!(Some('a'), parser::<char>().parse_str("a"));
-        assert_eq!(Some('∆'), parser::<char>().parse_str("∆"));
-        assert_eq!(None, parser::<char>().parse_str(""));
+        assert_parse!(Some('a'), parser::<char>(), "a");
+        assert_parse!(Some('∆'), parser::<char>(), "∆");
+        assert_parse!(None, parser::<char>(), "");
     }
 }

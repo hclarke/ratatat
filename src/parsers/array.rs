@@ -24,15 +24,13 @@ impl<'a, I: ?Sized, P: Parser<'a, I>, const N: usize> Parser<'a, I> for [P; N] {
 mod test {
     use super::*;
 
+
     #[test]
     fn char_parser() {
-        assert_eq!(Some('b'), ['a', 'b', 'c'].parse_str("b"));
-        assert_eq!(None, ['a', 'b', 'c'].parse_str("d"));
+        assert_parse!(Some('b'), ['a', 'b', 'c'], "b");
+        assert_parse!(None, ['a', 'b', 'c'], "d");
 
-        assert_eq!(
-            Some(['a', 'b', 'c']),
-            parser::<[char; 3]>().parse_str("abc")
-        );
-        assert_eq!(None, parser::<[char; 3]>().parse_str("ab"));
+        assert_parse!(Some(['a', 'b', 'c']), parser::<[char; 3]>(),"abc");
+        assert_parse!(None, parser::<[char; 3]>(), "ab");
     }
 }

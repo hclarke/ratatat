@@ -26,12 +26,12 @@ mod test {
 
     #[test]
     fn bool_parser() {
-        assert_eq!(Some(true), true.parse_str("true"));
-        assert_eq!(Some(false), false.parse_str("false"));
-        assert_eq!(None, true.parse_str("lol"));
+        assert_parse!(Some(true), true, "true");
+        assert_parse!(Some(false), false, "false");
+        assert_parse!(None, true, "lol");
 
-        assert_eq!(Some(true), parser::<bool>().parse_str("true"));
-        assert_eq!(Some(false), parser::<bool>().parse_str("false"));
-        assert_eq!(None, parser::<bool>().parse_str("lol"));
+        assert_parse!(Some(true), parser::<bool>(), "true");
+        assert_parse!(Some(false), parser::<bool>(), "false");
+        assert_parse!(None, parser::<bool>(), "lol");
     }
 }

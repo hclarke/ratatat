@@ -4,8 +4,26 @@ use elsa::FrozenMap;
 use core::borrow::Borrow;
 use std::rc::Rc;
 
+#[cfg(test)]
+#[macro_use]
+mod test_macro {
+    macro_rules! assert_parse {
+        ($exp: expr, $parser: expr, $input: expr) => {
+            let ctx = Context::from_str($input);
+            let mut pos = 0;
+            let res = $parser.parse(&ctx, ctx.bytes.len(), &mut pos);
+            assert_eq!($exp, res);
+        }
+    }
+}
+#[cfg(test)]
+use test_macro::*;
+
 mod parsers;
 pub use parsers::*;
+
+mod input;
+pub use input::*;
 
 pub trait Parser<'a, I: ?Sized> {
     type O;
@@ -52,22 +70,6 @@ pub trait ParserExt<'a, I: ?Sized>: Parser<'a, I> {
         Self:Sized,
     {
         Recognize(self)
-    }
-
-    fn parse_bytes(&self, input: &'a I) -> Option<Self::O>
-    where
-        I: Borrow<[u8]>,
-    {
-        let ctx = Context::from_bytes(input);
-        self.parse(&ctx, ctx.bytes.len(), &mut 0)
-    }
-
-    fn parse_str(&self, input: &'a I) -> Option<Self::O>
-    where
-        I: Borrow<str>,
-    {
-        let ctx = Context::from_str(input);
-        self.parse(&ctx, ctx.bytes.len(), &mut 0)
     }
 }
 

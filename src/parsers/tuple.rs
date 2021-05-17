@@ -75,8 +75,6 @@ mod test {
 
     #[test]
     fn parse_tuple() {
-        let parser = ("hello", " ", "world");
-        let result = parser.parse_str("hello world");
-        assert_eq!(Some(("hello", " ", "world")), result);
+        assert_parse!(Some(("hello", " ", "world")), ("hello", " ", "world"), "hello world");
     }
 }
