@@ -17,7 +17,7 @@ impl<'a> Generator<'a> for JsonValue {
 
 		let ws = [' ', '\n', '\r', '\t'];
 		let ws0 = ws.many(..);
-		let ws1 = ws.many(1..);
+		let _ws1 = ws.many(1..);
 
 		let value = parser::<JsonValue>();
 
@@ -56,7 +56,7 @@ impl<'a> Generator<'a> for JsonValue {
 
 		let boolean = parser::<bool>();
 
-		let number = move |ctx: &Context<'a>, limit: usize, pos: &mut usize| -> Option<f64> {
+		let number = move |_ctx: &Context<'a>, _limit: usize, _pos: &mut usize| -> Option<f64> {
 			None
 		};
 
