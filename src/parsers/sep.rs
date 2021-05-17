@@ -20,7 +20,7 @@ impl<'a, P: Parser<'a>, S: Parser<'a>> Parser<'a> for Sep<P, S> {
 
         loop {
             reset = *pos;
-            if let None = self.1.parse(ctx, limit, pos) {
+            if self.1.parse(ctx, limit, pos).is_none() {
                 break;
             }
             match self.0.parse(ctx, limit, pos) {
