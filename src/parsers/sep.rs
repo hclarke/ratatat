@@ -1,5 +1,6 @@
 use crate::*;
 
+#[derive(Copy, Clone)]
 pub struct Sep<P,S>(pub P, pub S);
 
 impl<'a, P:Parser<'a>, S:Parser<'a>> Parser<'a> for Sep<P,S> {

@@ -1,5 +1,6 @@
 use crate::*;
 
+#[derive(Copy, Clone)]
 pub struct Alt<T>(pub T);
 
 macro_rules! impl_tuple {

@@ -1,8 +1,8 @@
 use crate::*;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Filter<P,F>(pub P, pub F);
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct FilterMap<P,F>(pub P, pub F);
 
 impl<'a, P:Parser<'a>, F:Fn(&P::O) -> bool> Parser<'a> for Filter<P,F> {

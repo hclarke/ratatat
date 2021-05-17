@@ -1,5 +1,6 @@
 use crate::*;
 
+#[derive(Copy, Clone)]
 pub struct Recognize<T>(pub T);
 
 impl<'a, P:Parser<'a>> Parser<'a> for Recognize<P> {

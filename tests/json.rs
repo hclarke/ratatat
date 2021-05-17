@@ -16,28 +16,31 @@ impl<'a> Generator<'a> for JsonValue {
 	fn generate(_ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
 
 		let ws = [' ', '\n', '\r', '\t'];
-		let ws0 = Many(ws, ..);
-		let ws1 = Many(ws, 1..);
+		let ws0 = ws.many(..);
+		let ws1 = ws.many(1..);
 
 		let value = parser::<JsonValue>();
 
-		let non_quotes = Many(Filter(parser::<char>(), |c: &char| *c != '"'), ..);
-		let non_quotes = FilterMap(Recognize(non_quotes), |bytes: &[u8]| String::from_utf8(bytes.to_vec()).ok());
+		let non_quotes = parser::<char>()
+			.filter(|c| *c != '"')
+			.many(..);
 
-		let string = ParserExt::map(('"', non_quotes, '"'), |x| x.1);
-		let string = Rc::new(string);
+		let non_quotes = Recognize(non_quotes)
+			.then(|bytes| String::from_utf8(bytes.to_vec()).ok());
+
+		let string = ('"', non_quotes, '"').map(|x| x.1);
 
 		let pair = ParserExt::map((
-			ws0.clone(), 
-			string.clone(), 
-			ws0.clone(), 
+			ws0, 
+			string, 
+			ws0, 
 			':', 
-			ws0.clone(), 
+			ws0, 
 			value, 
-			ws0.clone(),
+			ws0,
 		), |x| (x.1, x.5));
 
-		let object = ParserExt::map((
+		let object = (
 			'{', 
 			ParserExt::map(Sep(pair, ','), |kvs| {
 				let mut m = HashMap::new();
@@ -47,9 +50,9 @@ impl<'a> Generator<'a> for JsonValue {
 				m
 			}),
 			'}',
-		), |x| x.1);
+		).map(|x| x.1);
 
-		let array = ParserExt::map(('[', Sep(value, ',') , ']'), |x| x.1);
+		let array = ('[', Sep(value, ',') , ']').map(|x| x.1);
 
 		let boolean = parser::<bool>();
 
@@ -58,12 +61,12 @@ impl<'a> Generator<'a> for JsonValue {
 		};
 
 		Rc::new(Alt((
-			Map("null", |_| JsonValue::Null),
-			Map(object, JsonValue::Object),
-			Map(array, JsonValue::Array),
-			Map(string, JsonValue::String),
-			Map(number, JsonValue::Number),
-			Map(boolean, JsonValue::Bool),
+			("null",).map(|_| JsonValue::Null),
+			object.map(JsonValue::Object),
+			array.map(JsonValue::Array),
+			string.map(JsonValue::String),
+			number.map(JsonValue::Number),
+			boolean.map(JsonValue::Bool),
 		)))
 	}
 }

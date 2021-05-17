@@ -1,5 +1,6 @@
 use crate::*;
 use std::rc::Weak;
+
 impl<'a, P: Parser<'a> + ?Sized> Parser<'a> for Rc<P> {
     type O = P::O;
     fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {

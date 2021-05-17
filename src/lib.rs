@@ -4,6 +4,8 @@ use elsa::FrozenMap;
 use core::borrow::Borrow;
 use std::rc::Rc;
 use std::ops::Deref;
+use core::ops::RangeBounds;
+use core::ops::Bound;
 
 #[cfg(test)]
 #[macro_use]
@@ -74,6 +76,13 @@ pub trait ParserExt<'a>: Parser<'a> {
         Self:Sized,
     {
         Recognize(self)
+    }
+
+    fn many<R:RangeBounds<usize>>(self, r: R) -> Many<Self> 
+    where
+        Self:Sized,
+    {
+        Many::new(self, r)
     }
 }
 
