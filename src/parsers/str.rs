@@ -1,8 +1,8 @@
 use crate::*;
 
-impl<'a, 'b, I: ?Sized> Parser<'a, I> for &'b str {
+impl<'a, 'b> Parser<'a> for &'b str {
     type O = &'a str;
-    fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let bytes = self.as_bytes();
 
         let src = &ctx.bytes[*pos..limit];
@@ -30,7 +30,8 @@ mod test {
 
     #[test]
     fn str_parser() {
-        let ctx = &Context::from_str("hello world");
+        let input = Shared::new(Rc::new(b"hello world"[..].to_owned()));
+        let ctx = &Context::new(&input);
         let mut pos = 0;
         assert_eq!(Some("hello"), "hello".run(&ctx, ctx.bytes.len(), &mut pos));
         assert_eq!(5, pos);

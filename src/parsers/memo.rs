@@ -5,12 +5,12 @@ use elsa::FrozenMap;
 pub struct Memo<P>(*const P, Never);
 enum Never {}
 
-impl<'a, I: ?Sized, G: Generator<'a, I>> Generator<'a, I> for Memo<G>
+impl<'a, G: Generator<'a>> Generator<'a> for Memo<G>
 where
     G::O: Clone,
 {
     type O = G::O;
-    fn generate(ctx: &Context<'a, I>) -> Rc<DynParser<'a, I, Self::O>> {
+    fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
         struct MemoEntry<T> {
             value: Option<T>,
             pos: usize,
@@ -20,7 +20,7 @@ where
 
         let memo: FrozenMap<(usize, usize), Box<MemoEntry<Self::O>>> = FrozenMap::new();
 
-        Rc::new(move |ctx: &Context<'a, I>, limit: usize, pos: &mut usize| {
+        Rc::new(move |ctx: &Context<'a>, limit: usize, pos: &mut usize| {
             let key = (*pos, limit);
             if let Some(entry) = memo.get(&key) {
                 *pos = entry.pos;
@@ -48,11 +48,11 @@ mod test {
     #[test]
     fn memo_parser() {
         struct Counter;
-        impl<'a, I: ?Sized> Generator<'a, I> for Counter {
+        impl<'a> Generator<'a> for Counter {
             type O = usize;
-            fn generate(_ctx: &Context<I>) -> Rc<DynParser<'a, I, Self::O>> {
+            fn generate(_ctx: &Context) -> Rc<DynParser<'a, Self::O>> {
                 let cell = std::cell::RefCell::new(0);
-                let counter = move |_ctx: &Context<I>, _limit: usize, _pos: &mut usize| {
+                let counter = move |_ctx: &Context, _limit: usize, _pos: &mut usize| {
                     let mut val = cell.borrow_mut();
                     *val += 1;
                     Some(*val)
@@ -61,7 +61,8 @@ mod test {
             }
         }
 
-        let ctx = Context::from_str("");
+        let input = Shared::new(Rc::new(b""[..].to_owned()));
+        let ctx = Context::new(&input);
 
         // make sure the ocunter works
         assert_eq!(Some(1), ctx.parse::<Counter>(0, &mut 0));

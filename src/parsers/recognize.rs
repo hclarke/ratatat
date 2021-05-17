@@ -2,9 +2,9 @@ use crate::*;
 
 pub struct Recognize<T>(pub T);
 
-impl<'a, I:?Sized, P:Parser<'a, I>> Parser<'a, I> for Recognize<P> {
+impl<'a, P:Parser<'a>> Parser<'a> for Recognize<P> {
 	type O = &'a [u8];
-	fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+	fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
 		let start = *pos;
 		let _ = self.0.parse(ctx, limit, pos)?;
 		let end = *pos;
@@ -13,9 +13,9 @@ impl<'a, I:?Sized, P:Parser<'a, I>> Parser<'a, I> for Recognize<P> {
 	}
 }
 
-impl<'a, I:?Sized, G:Generator<'a, I>> Generator<'a, I> for Recognize<G> {
+impl<'a, G:Generator<'a>> Generator<'a> for Recognize<G> {
 	type O = &'a [u8];
-	fn generate(ctx: &Context<'a, I>) -> Rc<DynParser<'a, I, Self::O>> {
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
 		let parser = ctx.parser::<G>().clone();
 		Rc::new(Recognize(parser))
 	}

@@ -1,9 +1,9 @@
 use crate::*;
 use bstr::ByteSlice;
 
-impl<'a, I: ?Sized> Parser<'a, I> for char {
+impl<'a> Parser<'a> for char {
     type O = char;
-    fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let mut buf = [0; 4];
         let len = self.encode_utf8(&mut buf[..]).len();
 
@@ -21,7 +21,7 @@ impl<'a, I: ?Sized> Parser<'a, I> for char {
     }
 }
 
-fn parse_char<'a, I: ?Sized>(ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<char> {
+fn parse_char<'a>(ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<char> {
     let bytes = &ctx.bytes[*pos..limit];
     match bytes.char_indices().next() {
         Some((_, len, c)) => {
@@ -32,9 +32,9 @@ fn parse_char<'a, I: ?Sized>(ctx: &Context<'a, I>, limit: usize, pos: &mut usize
     }
 }
 
-impl<'a, I: ?Sized> Generator<'a, I> for char {
+impl<'a> Generator<'a> for char {
     type O = char;
-    fn generate(_ctx: &Context<'a, I>) -> Rc<DynParser<'a, I, Self::O>> {
+    fn generate(_ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
         Rc::new(parse_char)
     }
 }

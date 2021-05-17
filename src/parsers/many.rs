@@ -5,9 +5,9 @@ use core::ops::RangeBounds;
 #[derive(Clone)]
 pub struct Many<P, R>(pub P, pub R);
 
-impl<'a, I: ?Sized, P: Parser<'a, I>, R: RangeBounds<usize>> Parser<'a, I> for Many<P, R> {
+impl<'a, P: Parser<'a>, R: RangeBounds<usize>> Parser<'a> for Many<P, R> {
     type O = Vec<P::O>;
-    fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let mut v = Vec::new();
 
         let min = match self.1.start_bound() {

@@ -11,9 +11,9 @@ enum JsonValue {
 	Bool(bool),
 }
 
-impl<'a, I:?Sized> Generator<'a, I> for JsonValue {
+impl<'a> Generator<'a> for JsonValue {
 	type O = JsonValue;
-	fn generate(_ctx: &Context<'a, I>) -> Rc<DynParser<'a, I, Self::O>> {
+	fn generate(_ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
 
 		let ws = [' ', '\n', '\r', '\t'];
 		let ws0 = Many(ws, ..);
@@ -24,10 +24,10 @@ impl<'a, I:?Sized> Generator<'a, I> for JsonValue {
 		let non_quotes = Many(Filter(parser::<char>(), |c: &char| *c != '"'), ..);
 		let non_quotes = FilterMap(Recognize(non_quotes), |bytes: &[u8]| String::from_utf8(bytes.to_vec()).ok());
 
-		let string = ParserExt::<I>::map(('"', non_quotes, '"'), |x| x.1);
+		let string = ParserExt::map(('"', non_quotes, '"'), |x| x.1);
 		let string = Rc::new(string);
 
-		let pair = ParserExt::<I>::map((
+		let pair = ParserExt::map((
 			ws0.clone(), 
 			string.clone(), 
 			ws0.clone(), 
@@ -37,9 +37,9 @@ impl<'a, I:?Sized> Generator<'a, I> for JsonValue {
 			ws0.clone(),
 		), |x| (x.1, x.5));
 
-		let object = ParserExt::<I>::map((
+		let object = ParserExt::map((
 			'{', 
-			ParserExt::<I>::map(Sep(pair, ','), |kvs| {
+			ParserExt::map(Sep(pair, ','), |kvs| {
 				let mut m = HashMap::new();
 				for (k,v) in kvs {
 					m.insert(k,v);
@@ -49,11 +49,11 @@ impl<'a, I:?Sized> Generator<'a, I> for JsonValue {
 			'}',
 		), |x| x.1);
 
-		let array = ParserExt::<I>::map(('[', Sep(value, ',') , ']'), |x| x.1);
+		let array = ParserExt::map(('[', Sep(value, ',') , ']'), |x| x.1);
 
 		let boolean = parser::<bool>();
 
-		let number = move |ctx: &Context<'a, I>, limit: usize, pos: &mut usize| -> Option<f64> {
+		let number = move |ctx: &Context<'a>, limit: usize, pos: &mut usize| -> Option<f64> {
 			None
 		};
 

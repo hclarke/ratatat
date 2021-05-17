@@ -1,8 +1,8 @@
 use crate::*;
 
-impl<'a, I: ?Sized> Parser<'a, I> for bool {
+impl<'a> Parser<'a> for bool {
     type O = bool;
-    fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<bool> {
+    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<bool> {
         let parser = match *self {
             true => "true",
             false => "false",
@@ -13,9 +13,9 @@ impl<'a, I: ?Sized> Parser<'a, I> for bool {
     }
 }
 
-impl<'a, I: ?Sized> Generator<'a, I> for bool {
+impl<'a> Generator<'a> for bool {
     type O = bool;
-    fn generate(_ctx: &Context<'a, I>) -> Rc<DynParser<'a, I, Self::O>> {
+    fn generate(_ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
         Rc::new([true, false])
     }
 }

@@ -1,55 +1,55 @@
 use crate::*;
 
-impl<'a, I: ?Sized, T> Parser<'a, I> for std::ops::Range<T>
+impl<'a, T> Parser<'a> for std::ops::Range<T>
 where
-    T: Generator<'a, I, O = T> + PartialOrd,
+    T: Generator<'a, O = T> + PartialOrd,
 {
     type O = T;
-    fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let val = ctx.parse::<T>(limit, pos);
         val.filter(|val| self.contains(val))
     }
 }
 
-impl<'a, I: ?Sized, T> Parser<'a, I> for std::ops::RangeFrom<T>
+impl<'a, T> Parser<'a> for std::ops::RangeFrom<T>
 where
-    T: Generator<'a, I, O = T> + PartialOrd,
+    T: Generator<'a, O = T> + PartialOrd,
 {
     type O = T;
-    fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let val = ctx.parse::<T>(limit, pos);
         val.filter(|val| self.contains(val))
     }
 }
 
-impl<'a, I: ?Sized, T> Parser<'a, I> for std::ops::RangeTo<T>
+impl<'a, T> Parser<'a> for std::ops::RangeTo<T>
 where
-    T: Generator<'a, I, O = T> + PartialOrd,
+    T: Generator<'a, O = T> + PartialOrd,
 {
     type O = T;
-    fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let val = ctx.parse::<T>(limit, pos);
         val.filter(|val| self.contains(val))
     }
 }
 
-impl<'a, I: ?Sized, T> Parser<'a, I> for std::ops::RangeInclusive<T>
+impl<'a, T> Parser<'a> for std::ops::RangeInclusive<T>
 where
-    T: Generator<'a, I, O = T> + PartialOrd,
+    T: Generator<'a, O = T> + PartialOrd,
 {
     type O = T;
-    fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let val = ctx.parse::<T>(limit, pos);
         val.filter(|val| self.contains(val))
     }
 }
 
-impl<'a, I: ?Sized, T> Parser<'a, I> for std::ops::RangeToInclusive<T>
+impl<'a, T> Parser<'a> for std::ops::RangeToInclusive<T>
 where
-    T: Generator<'a, I, O = T> + PartialOrd,
+    T: Generator<'a, O = T> + PartialOrd,
 {
     type O = T;
-    fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let val = ctx.parse::<T>(limit, pos);
         val.filter(|val| self.contains(val))
     }

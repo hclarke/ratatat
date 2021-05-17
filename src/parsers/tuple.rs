@@ -4,27 +4,27 @@ pub struct Alt<T>(pub T);
 
 macro_rules! impl_tuple {
 	($($i:tt:$P:tt),*) => {
-		impl<'a, I:?Sized $(,$P:Parser<'a, I>)*> Parser<'a, I> for ($($P,)*) {
+		impl<'a $(,$P:Parser<'a>)*> Parser<'a> for ($($P,)*) {
 			type O = ($($P::O,)*);
-			fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+			fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
 				Some(($(self.$i.parse(ctx, limit, pos)?,)*))
 			}
 		}
 
-		impl<'a, I:?Sized $(,$P:Generator<'a, I>)*> Generator<'a, I> for ($($P,)*) {
+		impl<'a $(,$P:Generator<'a>)*> Generator<'a> for ($($P,)*) {
 			type O = ($($P::O,)*);
-			fn generate(ctx: &Context<'a, I>) -> Rc<dyn Parser<'a, I, O=Self::O>+'a> {
+			fn generate(ctx: &Context<'a>) -> Rc<dyn Parser<'a, O=Self::O>+'a> {
 				let rc = Rc::new(($(
 					ctx.parser::<$P>().clone(),
 				)*));
 
-				rc as Rc<dyn Parser<'a, I, O=Self::O>+'a>
+				rc as Rc<dyn Parser<'a, O=Self::O>+'a>
 			}
 		}
 
-		impl<'a, I:?Sized, O, $($P:Parser<'a, I, O=O>),*> Parser<'a, I> for Alt<($($P,)*)> {
+		impl<'a, O, $($P:Parser<'a, O=O>),*> Parser<'a> for Alt<($($P,)*)> {
 			type O = O;
-			fn parse(&self, ctx: &Context<'a, I>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+			fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
 				let reset = *pos;
 				$(
 					if let Some(res) = self.0.$i.parse(ctx, limit, pos) {
@@ -38,9 +38,9 @@ macro_rules! impl_tuple {
 			}
 		}
 
-		impl<'a, I:?Sized, O:'a, $($P:Generator<'a, I, O=O>),*> Generator<'a, I> for Alt<($($P,)*)> {
+		impl<'a, O:'a, $($P:Generator<'a, O=O>),*> Generator<'a> for Alt<($($P,)*)> {
 			type O=O;
-			fn generate(ctx: &Context<'a, I>) -> Rc<DynParser<'a, I, Self::O>> {
+			fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
 				Rc::new(Alt(($(
 					ctx.parser::<$P>().clone(),
 				)*)))
