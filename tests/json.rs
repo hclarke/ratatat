@@ -1,7 +1,7 @@
 use ratatat::*;
-use std::collections::HashMap;
-use std::rc::Rc;
+
 use indexmap::IndexMap;
+use std::rc::Rc;
 
 #[derive(serde::Serialize)]
 enum JsonValue {
@@ -59,20 +59,18 @@ impl<'a> Generator<'a> for JsonValue {
             boolean.map(JsonValue::Bool),
         ));
 
-
         Rc::new((ws0, value, ws0).map(|x| x.1))
     }
 }
 
 #[test]
 fn parse_json() {
-	insta::glob!("json_inputs/*.json", |path|{
-		let file = std::fs::read(path).unwrap();
-		let input = Shared::new(Rc::new(file));
-		let ctx = Context::new(&input);
-		let mut pos = 0;
-		let val = ctx.parse::<JsonValue>(ctx.bytes.len(), &mut pos);
-		insta::assert_ron_snapshot!(val);
-	});
-
+    insta::glob!("json_inputs/*.json", |path| {
+        let file = std::fs::read(path).unwrap();
+        let input = Shared::new(Rc::new(file));
+        let ctx = Context::new(&input);
+        let mut pos = 0;
+        let val = ctx.parse::<JsonValue>(ctx.bytes.len(), &mut pos);
+        insta::assert_ron_snapshot!(val);
+    });
 }
