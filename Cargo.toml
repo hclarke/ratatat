@@ -10,4 +10,9 @@ edition = "2018"
 array-init = "2.0.0"
 bstr = "0.2.16"
 elsa = { git = "https://github.com/Manishearth/elsa.git" }
+insta = { version = "1.7.1", features = ["ron", "glob"] }
 srcstr = { git = "https://github.com/hclarke/srcstr.git", branch="main"  }
+
+[dev-dependencies]
+indexmap = {version = "1.6.2", features=["serde-1"] }
+serde = "1.0.126"

@@ -1,10 +1,12 @@
 use ratatat::*;
 use std::collections::HashMap;
 use std::rc::Rc;
+use indexmap::IndexMap;
 
+#[derive(serde::Serialize)]
 enum JsonValue {
     Null,
-    Object(HashMap<String, JsonValue>),
+    Object(IndexMap<String, JsonValue>), // uses indexmap for consistent yaml ordering
     Array(Vec<JsonValue>),
     String(String),
     Number(f64),
@@ -31,7 +33,7 @@ impl<'a> Generator<'a> for JsonValue {
         let object = (
             '{',
             ParserExt::map(Sep(pair, ','), |kvs| {
-                let mut m = HashMap::new();
+                let mut m = IndexMap::new();
                 for (k, v) in kvs {
                     m.insert(k, v);
                 }
@@ -48,13 +50,29 @@ impl<'a> Generator<'a> for JsonValue {
         let number =
             move |_ctx: &Context<'a>, _limit: usize, _pos: &mut usize| -> Option<f64> { None };
 
-        Rc::new(Alt((
+        let value = Alt((
             ("null",).map(|_| JsonValue::Null),
             object.map(JsonValue::Object),
             array.map(JsonValue::Array),
             string.map(JsonValue::String),
             number.map(JsonValue::Number),
             boolean.map(JsonValue::Bool),
-        )))
+        ));
+
+
+        Rc::new((ws0, value, ws0).map(|x| x.1))
     }
+}
+
+#[test]
+fn parse_json() {
+	insta::glob!("json_inputs/*.json", |path|{
+		let file = std::fs::read(path).unwrap();
+		let input = Shared::new(Rc::new(file));
+		let ctx = Context::new(&input);
+		let mut pos = 0;
+		let val = ctx.parse::<JsonValue>(ctx.bytes.len(), &mut pos);
+		insta::assert_ron_snapshot!(val);
+	});
+
 }
