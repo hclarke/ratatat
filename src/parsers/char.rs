@@ -3,7 +3,7 @@ use bstr::ByteSlice;
 
 impl<'a> Parser<'a> for char {
     type O = char;
-    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let mut buf = [0; 4];
         let len = self.encode_utf8(&mut buf[..]).len();
 
@@ -35,7 +35,7 @@ fn parse_char<'a>(ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<ch
 impl<'a> Generator<'a> for char {
     type O = char;
     fn generate(_ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
-        Rc::new(parse_char)
+        Rc::new(FnParser(parse_char, Some("char")))
     }
 }
 

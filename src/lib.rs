@@ -4,6 +4,10 @@ use elsa::FrozenMap;
 use core::ops::RangeBounds;
 use std::ops::Deref;
 use std::rc::Rc;
+use core::fmt::Debug;
+use core::cell::{RefCell, Ref};
+use std::fmt::Write;
+use core::borrow::Borrow;
 
 #[cfg(test)]
 #[macro_use]
@@ -27,9 +31,24 @@ pub use parsers::*;
 mod input;
 pub use input::*;
 
-pub trait Parser<'a> {
-    type O;
-    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O>;
+
+mod tracing;
+use tracing::*;
+pub use tracing::{TraceConfig, TraceLevel};
+
+pub trait Parser<'a> : Debug {
+    type O:Debug;
+
+    /// impl_parse should be implemented by parsers, but not called. call parse instead, which can do logging.
+    fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O>;
+
+    fn name(&self) -> String {
+        format!("{:?}", self)
+    }
+
+    fn trace_level(&self) -> TraceLevel {
+        TraceLevel::Normal
+    }
 }
 
 pub type DynParser<'a, O> = dyn Parser<'a, O = O> + 'a;
@@ -38,9 +57,34 @@ pub struct Context<'a> {
     pub source: &'a Shared<[u8]>,
     pub bytes: &'a [u8],
     parsers: FrozenMap<TypeId, Box<dyn Generated<'a> + 'a>>,
+
+
+    #[cfg(feature = "traces")]
+    tracer: RefCell<Tracer>,
 }
 
 pub trait ParserExt<'a>: Parser<'a> {
+    /// this is the parse method that should be called. it wraps impl_parse, and does logging/etc.
+    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+
+
+        #[cfg(feature = "traces")]
+        let trace_id = {  
+            let mut tracer = ctx.tracer.borrow_mut();
+            tracer.enter(self, *pos)
+        };
+
+        let result = self.impl_parse(ctx, limit, pos);
+
+
+        #[cfg(feature = "traces")]
+        if let Some(trace_id) = trace_id {
+            let mut tracer = ctx.tracer.borrow_mut();
+            tracer.exit(self, trace_id, *pos, &result);
+        }
+
+        result
+    }
     /// run is an alias for parse, to make it easier when the parser type has another 'parse' method
     fn run(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         self.parse(ctx, limit, pos)
@@ -80,22 +124,19 @@ pub trait ParserExt<'a>: Parser<'a> {
     {
         Many::new(self, r)
     }
-}
 
-impl<'a, P: Parser<'a>> ParserExt<'a> for P {}
-
-impl<'a, O, F> Parser<'a> for F
-where
-    F: Fn(&Context<'a>, usize, &mut usize) -> Option<O>,
-{
-    type O = O;
-    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
-        self(ctx, limit, pos)
+    fn named<N:Borrow<str>+Debug>(self, name:N) -> Named<Self,N> 
+    where
+        Self:Sized,
+    {
+        Named(self, name)
     }
 }
 
+impl<'a, P: Parser<'a>+?Sized> ParserExt<'a> for P {}
+
 pub trait Generator<'a>: Any {
-    type O;
+    type O:Debug;
     fn generate(ctx: &Context<'a>) -> Rc<dyn Parser<'a, O = Self::O> + 'a>;
 }
 
@@ -129,6 +170,9 @@ impl<'a> Context<'a> {
             source,
             bytes,
             parsers: FrozenMap::new(),
+
+            #[cfg(feature = "traces")]
+            tracer: RefCell::new(Tracer::new()),
         }
     }
 
@@ -163,5 +207,16 @@ impl<'a> Context<'a> {
     pub fn parse<G: Generator<'a>>(&self, limit: usize, pos: &mut usize) -> Option<G::O> {
         let parser = self.parser::<G>();
         parser.parse(self, limit, pos)
+    }
+
+    #[cfg(feature = "traces")]
+    pub fn trace_config(&mut self, config: Option<TraceConfig>) {
+        self.tracer.get_mut().config = config;
+    }
+
+    #[cfg(feature = "traces")]
+    pub fn trace(&self) -> Ref<Vec<TraceElement>> {
+        let tracer = self.tracer.borrow();
+        Ref::map(tracer, |t| &t.traces)
     }
 }

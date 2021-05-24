@@ -2,7 +2,7 @@ use crate::*;
 
 impl<'a, 'b> Parser<'a> for &'b str {
     type O = &'a str;
-    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let bytes = self.as_bytes();
 
         let src = &ctx.bytes[*pos..limit];

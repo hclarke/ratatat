@@ -2,7 +2,7 @@ use crate::*;
 
 impl<'a> Parser<'a> for bool {
     type O = bool;
-    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<bool> {
+    fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<bool> {
         let parser = match *self {
             true => "true",
             false => "false",

@@ -2,7 +2,7 @@ use crate::*;
 use core::ops::Bound;
 use core::ops::RangeBounds;
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Many<P>(pub P, pub usize, pub usize);
 
 impl<P> Many<P> {
@@ -25,7 +25,7 @@ impl<P> Many<P> {
 
 impl<'a, P: Parser<'a>> Parser<'a> for Many<P> {
     type O = Vec<P::O>;
-    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let mut v = Vec::new();
 
         for _ in 0..self.1 {
@@ -46,6 +46,15 @@ impl<'a, P: Parser<'a>> Parser<'a> for Many<P> {
         }
 
         Some(v)
+    }
+
+    fn name(&self) -> String {
+        match (self.1 == 0, self.2 == std::usize::MAX) {
+            (true, true) => format!("Many({:?})", ..),
+            (true, false) => format!("Many({:?})", ..self.2),
+            (false, true) => format!("Many({:?})", self.1..),
+            (false, false) => format!("Many({:?})", self.1..self.2),
+        }
     }
 }
 

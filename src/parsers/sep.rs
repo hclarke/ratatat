@@ -1,11 +1,11 @@
 use crate::*;
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Sep<P, S>(pub P, pub S);
 
 impl<'a, P: Parser<'a>, S: Parser<'a>> Parser<'a> for Sep<P, S> {
     type O = Vec<P::O>;
-    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let mut v = Vec::new();
 
         let mut reset = *pos;
@@ -31,6 +31,10 @@ impl<'a, P: Parser<'a>, S: Parser<'a>> Parser<'a> for Sep<P, S> {
 
         *pos = reset;
         Some(v)
+    }
+
+    fn name(&self) -> String {
+    	"Sep".to_owned()
     }
 }
 

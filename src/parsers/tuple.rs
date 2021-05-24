@@ -1,14 +1,18 @@
 use crate::*;
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Alt<T>(pub T);
 
 macro_rules! impl_tuple {
 	($($i:tt:$P:tt),*) => {
 		impl<'a $(,$P:Parser<'a>)*> Parser<'a> for ($($P,)*) {
 			type O = ($($P::O,)*);
-			fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+			fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
 				Some(($(self.$i.parse(ctx, limit, pos)?,)*))
+			}
+
+			fn name(&self) -> String {
+				"()".to_owned()
 			}
 		}
 
@@ -23,9 +27,9 @@ macro_rules! impl_tuple {
 			}
 		}
 
-		impl<'a, O, $($P:Parser<'a, O=O>),*> Parser<'a> for Alt<($($P,)*)> {
+		impl<'a, O:Debug, $($P:Parser<'a, O=O>),*> Parser<'a> for Alt<($($P,)*)> {
 			type O = O;
-			fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+			fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
 				let reset = *pos;
 				$(
 					if let Some(res) = self.0.$i.parse(ctx, limit, pos) {
@@ -37,9 +41,13 @@ macro_rules! impl_tuple {
 
 				None
 			}
+
+			fn name(&self) -> String {
+				"Alt".to_owned()
+			}
 		}
 
-		impl<'a, O:'a, $($P:Generator<'a, O=O>),*> Generator<'a> for Alt<($($P,)*)> {
+		impl<'a, O:Debug+'a, $($P:Generator<'a, O=O>),*> Generator<'a> for Alt<($($P,)*)> {
 			type O=O;
 			fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
 				Rc::new(Alt(($(

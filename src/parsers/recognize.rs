@@ -1,16 +1,20 @@
 use crate::*;
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Recognize<T>(pub T);
 
 impl<'a, P: Parser<'a>> Parser<'a> for Recognize<P> {
     type O = &'a [u8];
-    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         let start = *pos;
         let _ = self.0.parse(ctx, limit, pos)?;
         let end = *pos;
 
         Some(&ctx.bytes[start..end])
+    }
+
+    fn name(&self) -> String {
+    	"Recognize".to_string()
     }
 }
 

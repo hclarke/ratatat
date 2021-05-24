@@ -2,6 +2,7 @@ use crate::*;
 
 use array_init::try_array_init;
 
+
 impl<'a, G: Generator<'a>, const N: usize> Generator<'a> for [G; N] {
     type O = [G::O; N];
     fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
@@ -9,14 +10,18 @@ impl<'a, G: Generator<'a>, const N: usize> Generator<'a> for [G; N] {
         let f = move |ctx: &Context<'a>, limit: usize, pos: &mut usize| {
             try_array_init(|_| parser.parse(ctx, limit, pos).ok_or(())).ok()
         };
-        Rc::new(f)
+        Rc::new(FnParser(f, Some("[]")))
     }
 }
 
 impl<'a, P: Parser<'a>, const N: usize> Parser<'a> for [P; N] {
     type O = P::O;
-    fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
         self[..].parse(ctx, limit, pos)
+    }
+
+    fn name(&self) -> String {
+        format!("[_:{}]", N)
     }
 }
 

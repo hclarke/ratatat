@@ -14,6 +14,8 @@ mod slice;
 mod str;
 mod tuple;
 mod vec;
+mod fnparser;
+mod named;
 
 pub use filter::*;
 pub use many::Many;
@@ -22,3 +24,5 @@ pub use parse::parser;
 pub use recognize::*;
 pub use sep::Sep;
 pub use tuple::Alt;
+pub use fnparser::FnParser;
+pub use named::Named;

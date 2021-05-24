@@ -20,7 +20,7 @@ where
 
         let memo: FrozenMap<(usize, usize), Box<MemoEntry<Self::O>>> = FrozenMap::new();
 
-        Rc::new(move |ctx: &Context<'a>, limit: usize, pos: &mut usize| {
+        let f = move |ctx: &Context<'a>, limit: usize, pos: &mut usize| {
             let key = (*pos, limit);
             if let Some(entry) = memo.get(&key) {
                 *pos = entry.pos;
@@ -37,7 +37,9 @@ where
             );
 
             res
-        })
+        };
+
+        Rc::new(FnParser(f, Some("Memo")))
     }
 }
 
@@ -57,7 +59,7 @@ mod test {
                     *val += 1;
                     Some(*val)
                 };
-                Rc::new(counter)
+                Rc::new(FnParser(counter, None))
             }
         }
 
