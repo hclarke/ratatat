@@ -64,8 +64,8 @@ impl Tracer {
         }
 
         let level = match parser.is_named() {
-        	true => TraceLevel::Explicit,
-        	false => TraceLevel::Normal,
+            true => TraceLevel::Explicit,
+            false => TraceLevel::Normal,
         };
 
         if config.level < level {
