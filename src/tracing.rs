@@ -36,10 +36,10 @@ pub struct Tracer {
 
 
 #[derive(Debug)]
-pub struct TraceId(usize);
+pub(crate) struct TraceId(usize);
 
 impl Tracer {
-	pub fn new() -> Self {
+	pub(crate) fn new() -> Self {
 		Tracer {
 			config: None,
 			traces: Vec::new(),
@@ -49,7 +49,7 @@ impl Tracer {
 	}
 
 
-	pub fn enter<'a, P:Parser<'a>+?Sized>(&mut self, parser: &P, pos: usize) -> Option<TraceId> {
+	pub(crate) fn enter<'a, P:Parser<'a>+?Sized>(&mut self, parser: &P, pos: usize) -> Option<TraceId> {
 
 		if self.config.is_none() {
 			return None;
@@ -81,7 +81,7 @@ impl Tracer {
 		Some(TraceId(id))
 	}
 
-	pub fn exit<'a, P:Parser<'a>+?Sized>(&mut self, _parser: &P, id: TraceId, pos: usize, result: &Option<P::O>) {
+	pub(crate) fn exit<'a, P:Parser<'a>+?Sized>(&mut self, _parser: &P, id: TraceId, pos: usize, result: &Option<P::O>) {
 		let element = &mut self.traces[id.0];
 		assert!(!element.done);
 		element.span.end = pos;

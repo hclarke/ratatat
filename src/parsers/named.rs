@@ -1,5 +1,4 @@
 use crate::*;
-use crate::tracing::TraceLevel;
 use core::borrow::Borrow;
 
 #[derive(Debug, Copy, Clone)]
@@ -15,7 +14,7 @@ impl<'a, P:Parser<'a>, N:Borrow<str>+Debug> Parser<'a> for Named<P,N> {
 		self.1.borrow().to_owned()
 	}
 
-	fn trace_level(&self) -> TraceLevel {
-		TraceLevel::Explicit
+	fn is_named(&self) -> bool {
+		true
 	}
 }

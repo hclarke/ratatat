@@ -5,8 +5,6 @@ use core::ops::RangeBounds;
 use std::ops::Deref;
 use std::rc::Rc;
 use core::fmt::Debug;
-
-use std::fmt::Write;
 use core::borrow::Borrow;
 
 #[cfg(test)]
@@ -31,10 +29,8 @@ pub use parsers::*;
 mod input;
 pub use input::*;
 
-
-mod tracing;
-
-pub use tracing::{TraceConfig, TraceLevel};
+#[cfg(feature = "traces")]
+pub mod tracing;
 
 pub trait Parser<'a> : Debug {
     type O:Debug;
@@ -46,8 +42,8 @@ pub trait Parser<'a> : Debug {
         format!("{:?}", self)
     }
 
-    fn trace_level(&self) -> TraceLevel {
-        TraceLevel::Normal
+    fn is_named(&self) -> bool {
+        false
     }
 }
 
