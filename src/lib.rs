@@ -55,7 +55,7 @@ pub struct Context<'a> {
     parsers: FrozenMap<TypeId, Box<dyn Generated<'a> + 'a>>,
 
     #[cfg(feature = "traces")]
-    tracer: RefCell<Tracer>,
+    tracer: core::cell::RefCell<tracing::Tracer>,
 }
 
 pub trait ParserExt<'a>: Parser<'a> {
@@ -164,7 +164,7 @@ impl<'a> Context<'a> {
             parsers: FrozenMap::new(),
 
             #[cfg(feature = "traces")]
-            tracer: RefCell::new(Tracer::new()),
+            tracer: core::cell::RefCell::new(tracing::Tracer::new()),
         }
     }
 
@@ -202,13 +202,13 @@ impl<'a> Context<'a> {
     }
 
     #[cfg(feature = "traces")]
-    pub fn trace_config(&mut self, config: Option<TraceConfig>) {
+    pub fn trace_config(&mut self, config: Option<tracing::TraceConfig>) {
         self.tracer.get_mut().config = config;
     }
 
     #[cfg(feature = "traces")]
-    pub fn trace(&self) -> Ref<Vec<TraceElement>> {
+    pub fn trace(&self) -> core::cell::Ref<Vec<tracing::TraceElement>> {
         let tracer = self.tracer.borrow();
-        Ref::map(tracer, |t| &t.traces)
+        core::cell::Ref::map(tracer, |t| &t.traces)
     }
 }

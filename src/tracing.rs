@@ -23,6 +23,7 @@ pub struct TraceElement {
     pub name: String,
     pub pass: bool,
     pub span: Range<usize>,
+    pub level: TraceLevel,
 }
 
 #[derive(Debug)]
@@ -62,7 +63,12 @@ impl Tracer {
             return None;
         }
 
-        if config.level < parser.trace_level() {
+        let level = match parser.is_named() {
+        	true => TraceLevel::Explicit,
+        	false => TraceLevel::Normal,
+        };
+
+        if config.level < level {
             return None;
         }
 
@@ -74,6 +80,7 @@ impl Tracer {
             pass: false,
             span: pos..pos,
             depth: self.depth + 1,
+            level,
         });
         self.current = id as isize;
         self.depth += 1;
