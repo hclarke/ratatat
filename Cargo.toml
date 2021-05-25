@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 array-init = "2.0.0"
 bstr = "0.2.16"
-elsa = { git = "https://github.com/Manishearth/elsa.git" }
+elsa = "1.4.0"
 insta = { version = "1.7.1", features = ["ron", "glob"] }
 
 [dev-dependencies]
