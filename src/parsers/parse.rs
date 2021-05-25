@@ -11,9 +11,9 @@ impl<G> Clone for Parse<G> {
 impl<G> Copy for Parse<G> {}
 
 impl<G> Debug for Parse<G> {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		write!(f, "Parse<{}>", core::any::type_name::<G>())
-	}
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Parse<{}>", core::any::type_name::<G>())
+    }
 }
 
 pub fn parser<G>() -> Parse<G> {

@@ -34,7 +34,7 @@ impl<'a, P: Parser<'a>, S: Parser<'a>> Parser<'a> for Sep<P, S> {
     }
 
     fn name(&self) -> String {
-    	"Sep".to_owned()
+        "Sep".to_owned()
     }
 }
 

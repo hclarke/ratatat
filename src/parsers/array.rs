@@ -2,7 +2,6 @@ use crate::*;
 
 use array_init::try_array_init;
 
-
 impl<'a, G: Generator<'a>, const N: usize> Generator<'a> for [G; N] {
     type O = [G::O; N];
     fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {

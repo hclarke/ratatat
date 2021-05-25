@@ -46,8 +46,8 @@ impl<'a> Generator<'a> for JsonValue {
         let boolean = parser::<bool>();
 
         let number = FnParser(
-        	move |_ctx: &Context<'a>, _limit: usize, _pos: &mut usize| -> Option<f64> { None },
-        	Some("number")
+            move |_ctx: &Context<'a>, _limit: usize, _pos: &mut usize| -> Option<f64> { None },
+            Some("number"),
         );
 
         let value = Alt((

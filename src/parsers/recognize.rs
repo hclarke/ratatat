@@ -14,7 +14,7 @@ impl<'a, P: Parser<'a>> Parser<'a> for Recognize<P> {
     }
 
     fn name(&self) -> String {
-    	"Recognize".to_string()
+        "Recognize".to_string()
     }
 }
 

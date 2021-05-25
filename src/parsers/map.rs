@@ -3,9 +3,9 @@ use crate::*;
 #[derive(Copy, Clone)]
 pub struct Map<P, F>(pub P, pub F);
 
-impl<P:Debug,F> Debug for Map<P,F> {
-	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f,"Map({:?},?)", self.0)
+impl<P: Debug, F> Debug for Map<P, F> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "Map({:?},?)", self.0)
     }
 }
 
@@ -21,6 +21,6 @@ where
     }
 
     fn name(&self) -> String {
-    	format!("Map")
+        format!("Map")
     }
 }

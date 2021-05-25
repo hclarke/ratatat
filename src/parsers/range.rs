@@ -1,6 +1,6 @@
 use crate::*;
 
-impl<'a, T:Debug> Parser<'a> for std::ops::Range<T>
+impl<'a, T: Debug> Parser<'a> for std::ops::Range<T>
 where
     T: Generator<'a, O = T> + PartialOrd,
 {
@@ -11,7 +11,7 @@ where
     }
 }
 
-impl<'a, T:Debug> Parser<'a> for std::ops::RangeFrom<T>
+impl<'a, T: Debug> Parser<'a> for std::ops::RangeFrom<T>
 where
     T: Generator<'a, O = T> + PartialOrd,
 {
@@ -22,7 +22,7 @@ where
     }
 }
 
-impl<'a, T:Debug> Parser<'a> for std::ops::RangeTo<T>
+impl<'a, T: Debug> Parser<'a> for std::ops::RangeTo<T>
 where
     T: Generator<'a, O = T> + PartialOrd,
 {
@@ -33,7 +33,7 @@ where
     }
 }
 
-impl<'a, T:Debug> Parser<'a> for std::ops::RangeInclusive<T>
+impl<'a, T: Debug> Parser<'a> for std::ops::RangeInclusive<T>
 where
     T: Generator<'a, O = T> + PartialOrd,
 {
@@ -44,7 +44,7 @@ where
     }
 }
 
-impl<'a, T:Debug> Parser<'a> for std::ops::RangeToInclusive<T>
+impl<'a, T: Debug> Parser<'a> for std::ops::RangeToInclusive<T>
 where
     T: Generator<'a, O = T> + PartialOrd,
 {

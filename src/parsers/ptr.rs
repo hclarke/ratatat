@@ -8,7 +8,7 @@ impl<'a, P: Parser<'a> + ?Sized> Parser<'a> for Rc<P> {
     }
 
     fn name(&self) -> String {
-    	"Rc".to_owned()
+        "Rc".to_owned()
     }
 }
 
@@ -20,6 +20,6 @@ impl<'a, P: Parser<'a> + ?Sized> Parser<'a> for Weak<P> {
     }
 
     fn name(&self) -> String {
-    	"Weak".to_owned()
+        "Weak".to_owned()
     }
 }

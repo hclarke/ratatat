@@ -1,11 +1,11 @@
 use core::any::{Any, TypeId};
 use elsa::FrozenMap;
 
+use core::borrow::Borrow;
+use core::fmt::Debug;
 use core::ops::RangeBounds;
 use std::ops::Deref;
 use std::rc::Rc;
-use core::fmt::Debug;
-use core::borrow::Borrow;
 
 #[cfg(test)]
 #[macro_use]
@@ -32,8 +32,8 @@ pub use input::*;
 #[cfg(feature = "traces")]
 pub mod tracing;
 
-pub trait Parser<'a> : Debug {
-    type O:Debug;
+pub trait Parser<'a>: Debug {
+    type O: Debug;
 
     /// impl_parse should be implemented by parsers, but not called. call parse instead, which can do logging.
     fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O>;
@@ -54,7 +54,6 @@ pub struct Context<'a> {
     pub bytes: &'a [u8],
     parsers: FrozenMap<TypeId, Box<dyn Generated<'a> + 'a>>,
 
-
     #[cfg(feature = "traces")]
     tracer: RefCell<Tracer>,
 }
@@ -62,16 +61,13 @@ pub struct Context<'a> {
 pub trait ParserExt<'a>: Parser<'a> {
     /// this is the parse method that should be called. it wraps impl_parse, and does logging/etc.
     fn parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
-
-
         #[cfg(feature = "traces")]
-        let trace_id = {  
+        let trace_id = {
             let mut tracer = ctx.tracer.borrow_mut();
             tracer.enter(self, *pos)
         };
 
         let result = self.impl_parse(ctx, limit, pos);
-
 
         #[cfg(feature = "traces")]
         if let Some(trace_id) = trace_id {
@@ -121,18 +117,18 @@ pub trait ParserExt<'a>: Parser<'a> {
         Many::new(self, r)
     }
 
-    fn named<N:Borrow<str>+Debug>(self, name:N) -> Named<Self,N> 
+    fn named<N: Borrow<str> + Debug>(self, name: N) -> Named<Self, N>
     where
-        Self:Sized,
+        Self: Sized,
     {
         Named(self, name)
     }
 }
 
-impl<'a, P: Parser<'a>+?Sized> ParserExt<'a> for P {}
+impl<'a, P: Parser<'a> + ?Sized> ParserExt<'a> for P {}
 
 pub trait Generator<'a>: Any {
-    type O:Debug;
+    type O: Debug;
     fn generate(ctx: &Context<'a>) -> Rc<dyn Parser<'a, O = Self::O> + 'a>;
 }
 
