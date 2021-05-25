@@ -5,7 +5,7 @@ use core::ops::RangeBounds;
 use std::ops::Deref;
 use std::rc::Rc;
 use core::fmt::Debug;
-use core::cell::{RefCell, Ref};
+
 use std::fmt::Write;
 use core::borrow::Borrow;
 
@@ -33,7 +33,7 @@ pub use input::*;
 
 
 mod tracing;
-use tracing::*;
+
 pub use tracing::{TraceConfig, TraceLevel};
 
 pub trait Parser<'a> : Debug {

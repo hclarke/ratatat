@@ -68,7 +68,7 @@ fn parse_json() {
     insta::glob!("json_inputs/*.json", |path| {
         let file = std::fs::read(path).unwrap();
         let input = Shared::new(Rc::new(file));
-        let mut ctx = Context::new(&input);
+        let ctx = Context::new(&input);
         let mut pos = 0;
         let val = ctx.parse::<JsonValue>(ctx.bytes.len(), &mut pos);
         insta::assert_ron_snapshot!(val);

@@ -81,7 +81,7 @@ impl Tracer {
 		Some(TraceId(id))
 	}
 
-	pub fn exit<'a, P:Parser<'a>+?Sized>(&mut self, parser: &P, id: TraceId, pos: usize, result: &Option<P::O>) {
+	pub fn exit<'a, P:Parser<'a>+?Sized>(&mut self, _parser: &P, id: TraceId, pos: usize, result: &Option<P::O>) {
 		let element = &mut self.traces[id.0];
 		assert!(!element.done);
 		element.span.end = pos;
