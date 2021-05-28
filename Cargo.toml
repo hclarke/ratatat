@@ -2,6 +2,10 @@
 name = "ratatat"
 version = "0.1.0"
 authors = ["harri"]
+license = "AGPL"
+homepage = "https://github.com/hclarke/ratatat"
+repository = "https://github.com/hclarke/ratatat"
+readme = "README.md"
 edition = "2018"
 
 [dependencies]
