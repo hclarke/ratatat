@@ -16,6 +16,7 @@ mod slice;
 mod str;
 mod tuple;
 mod vec;
+mod numbe;
 
 pub use filter::*;
 pub use fnparser::FnParser;

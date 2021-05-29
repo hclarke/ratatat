@@ -58,6 +58,7 @@ macro_rules! impl_tuple {
 	}
 }
 
+
 impl_tuple!(0: P0);
 impl_tuple!(0: P0, 1: P1);
 impl_tuple!(0: P0, 1: P1, 2: P2);
@@ -77,6 +78,13 @@ impl_tuple!(
     7: P7,
     8: P8
 );
+
+impl<'a> Parser<'a> for () {
+	type O = ();
+	fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+		Some(())
+	}
+}
 
 #[cfg(test)]
 mod test {
