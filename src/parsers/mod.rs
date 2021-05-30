@@ -17,6 +17,7 @@ mod str;
 mod tuple;
 mod vec;
 mod numbe;
+mod then;
 
 pub use filter::*;
 pub use fnparser::FnParser;
@@ -27,3 +28,4 @@ pub use parse::parser;
 pub use recognize::*;
 pub use sep::Sep;
 pub use tuple::Alt;
+pub use then::Then;

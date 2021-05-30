@@ -22,7 +22,7 @@ impl<'a> Generator<'a> for JsonValue {
 
         let non_quotes = parser::<char>().filter(|c| *c != '"').many(..);
 
-        let non_quotes = Recognize(non_quotes).then(|bytes| String::from_utf8(bytes.to_vec()).ok());
+        let non_quotes = Recognize(non_quotes).filter_map(|bytes| String::from_utf8(bytes.to_vec()).ok());
 
         let string = ('"', non_quotes, '"').map(|x| x.1).named("string");
 

@@ -4,7 +4,8 @@ use num::*;
 use num::bigint::Sign;
 
 #[derive(Debug, Clone, Copy)]
-pub struct Digit(u32);
+pub struct Digit(pub u32);
+
 
 impl<'a> Parser<'a> for Digit {
 	type O = u32;
@@ -23,29 +24,24 @@ impl<'a> Generator<'a> for BigInt {
 			().map(|_| 1),
 		));
 
-		let hex = ("0x", Digit(16).many(1..))
-			.map(|digits| {
-				let mut val = BigInt::zero();
-				for d in digits.1 {
-					val *= 16;
-					val += d;
-				}
-				val
-			});
+		let radix = Alt((
+			("0x",).map(|_| 16),
+			("0b",).map(|_| 2),
+			().map(|_| 10),
+		));
 
-		let dec = Digit(10).many(1..)
-			.map(|digits| {
-				let mut val = BigInt::zero();
-				for d in digits {
-					val *= 10;
-					val += d;
-				}
-				val
-			});
-
-		let parser = (sign, Alt((hex,dec)))
-			.map(|(s, val)| val * s)
-			.named("BigInt");
+		let parser = (sign,radix).then(|(s,r)| {
+			Digit(r)
+				.many(1..)
+				.map(move |digits| {
+					let mut val = BigInt::zero();
+					for d in digits {
+						val *= r;
+						val += d;
+					}
+					val * s
+				})
+		});
 
 		Rc::new(parser)
 	}
@@ -98,6 +94,12 @@ mod test {
         	BigInt::from_radix_be(Sign::Minus, &[1, 2, 3, 4, 5, 6, 7, 8], 10), 
         	parser::<BigInt>(), 
         	"-00012345678"
+        );
+
+         assert_parse!(
+        	BigInt::from_radix_be(Sign::Minus, &[1, 1, 0, 0, 1, 0, 1], 2), 
+        	parser::<BigInt>(), 
+        	"-0b1100101"
         );
     }
 }

@@ -96,11 +96,18 @@ pub trait ParserExt<'a>: Parser<'a> {
         Filter(self, f)
     }
 
-    fn then<T, F: Fn(Self::O) -> Option<T>>(self, f: F) -> FilterMap<Self, F>
+    fn filter_map<T, F: Fn(Self::O) -> Option<T>>(self, f: F) -> FilterMap<Self, F>
     where
         Self: Sized,
     {
         FilterMap(self, f)
+    }
+
+    fn then<T:Parser<'a>, F:Fn(Self::O) -> T>(self, f:F) -> Then<Self,F> 
+    where
+        Self:Sized,
+    {
+        Then(self, f)
     }
 
     fn recognize(self) -> Recognize<Self>
