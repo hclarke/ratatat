@@ -26,6 +26,7 @@ impl<'a> Generator<'a> for BigInt {
 
 		let radix = Alt((
 			("0x",).map(|_| 16),
+			("0o",).map(|_| 8),
 			("0b",).map(|_| 2),
 			().map(|_| 10),
 		));
@@ -47,10 +48,119 @@ impl<'a> Generator<'a> for BigInt {
 	}
 }
 
+impl<'a> Generator<'a> for u8 {
+	type O = u8;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_u8());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for u16 {
+	type O = u16;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_u16());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for u32 {
+	type O = u32;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_u32());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for u64 {
+	type O = u64;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_u64());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for u128 {
+	type O = u128;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_u128());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for usize {
+	type O = usize;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_usize());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for i8 {
+	type O = i8;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_i8());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for i16 {
+	type O = i16;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_i16());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for i32 {
+	type O = i32;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_i32());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for i64 {
+	type O = i64;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_i64());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for i128 {
+	type O = i128;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_i128());
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for isize {
+	type O = isize;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigInt>().clone()
+			.filter_map(|x| x.to_isize());
+		Rc::new(parser)
+	}
+}
+
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use proptest::*;
 
     #[test]
     fn bigint_parser() {
@@ -101,5 +211,75 @@ mod test {
         	parser::<BigInt>(), 
         	"-0b1100101"
         );
+    }
+
+    #[test]
+    fn u8_parser() {
+    	assert_parse!(Some(0u8), parser::<u8>(), "0");
+    	assert_parse!(Some(1u8), parser::<u8>(), "1");
+
+    	assert_parse!(Some(255u8), parser::<u8>(), "255");
+    	assert_parse!(Some(255u8), parser::<u8>(), "0xFF");
+    	assert_parse!(Some(255u8), parser::<u8>(), "0o377");
+    	assert_parse!(Some(255u8), parser::<u8>(), "0b11111111");
+    }
+
+    proptest! {
+    	#[test]
+    	fn proptest_u8_dec(x in 0u8..=0xFFu8) {
+    		let s = format!("{}", x);
+    		assert_parse!(Some(x), parser::<u8>(), &s[..]);
+    	}
+    }
+
+    proptest! {
+    	#[test]
+    	fn proptest_u8_hex(x in 0u8..=0xFFu8) {
+    		let s = format!("{:#x}", x);
+    		println!("{}", &s);
+    		assert_parse!(Some(x), parser::<u8>(), &s[..]);
+    	}
+    }
+
+    proptest! {
+    	#[test]
+    	fn proptest_u8_oct(x in 0u8..=0xFFu8) {
+    		let s = format!("{:#o}", x);
+    		println!("{}", &s);
+    		assert_parse!(Some(x), parser::<u8>(), &s[..]);
+    	}
+    }
+
+    proptest! {
+    	#[test]
+    	fn proptest_u8_bin(x in 0u8..=0xFFu8) {
+    		let s = format!("{:#b}", x);
+    		println!("{}", &s);
+    		assert_parse!(Some(x), parser::<u8>(), &s[..]);
+    	}
+    }
+
+    proptest! {
+    	#[test]
+    	fn proptest_i32_dec(x in std::i32::MIN..=std::i32::MAX) {
+    		let s = format!("{}", x);
+    		assert_parse!(Some(x), parser::<i32>(), &s[..]);
+    	}
+    }
+
+    proptest! {
+    	#[test]
+    	fn proptest_usize_dec(x in std::usize::MIN..=std::usize::MAX) {
+    		let s = format!("{}", x);
+    		assert_parse!(Some(x), parser::<usize>(), &s[..]);
+    	}
+    }
+
+    proptest! {
+    	#[test]
+    	fn proptest_isize_dec(x in std::isize::MIN..=std::isize::MAX) {
+    		let s = format!("{}", x);
+    		assert_parse!(Some(x), parser::<isize>(), &s[..]);
+    	}
     }
 }
