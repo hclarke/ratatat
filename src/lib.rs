@@ -103,9 +103,9 @@ pub trait ParserExt<'a>: Parser<'a> {
         FilterMap(self, f)
     }
 
-    fn then<T:Parser<'a>, F:Fn(Self::O) -> T>(self, f:F) -> Then<Self,F> 
+    fn then<T: Parser<'a>, F: Fn(Self::O) -> T>(self, f: F) -> Then<Self, F>
     where
-        Self:Sized,
+        Self: Sized,
     {
         Then(self, f)
     }

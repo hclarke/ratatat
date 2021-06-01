@@ -203,6 +203,10 @@ impl<'a> Generator<'a> for BigFloat {
 			.map(|(s, m, e)| m * e * s)
 			.map(BigFloat);
 
+		let parser = Alt((
+			("in")
+		));
+
 		Rc::new(parser)
 	}
 }
