@@ -2,6 +2,9 @@ use crate::*;
 
 use num::*;
 use num::bigint::Sign;
+use num::rational::Ratio;
+use num::bigint::ToBigInt;
+use num::pow::Pow;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Digit(pub u32);
@@ -156,11 +159,78 @@ impl<'a> Generator<'a> for isize {
 	}
 }
 
+#[derive(Debug,Clone)]
+pub struct BigFloat(pub Ratio<BigInt>);
+
+impl<'a> Generator<'a> for BigFloat {
+	type O = BigFloat;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let sign = Alt((
+			'-'.map(|_| -1), 
+			'+'.map(|_| 1),
+			().map(|_| 1),
+		)).map(|v| v.to_bigint().unwrap());
+
+		let digits = Digit(10)
+			.many(1..)
+			.map(|digits| {
+				let mut val = BigInt::zero();
+				let mut div = BigInt::one();
+				for d in digits {
+					val *= 10;
+					div *= 10;
+					val += d;
+				}
+				(val,div)
+			});
+
+		let whole = digits.map(|(val,_)| Ratio::from_integer(val));
+		let fract = digits.map(|(val,div)| Ratio::new(val, div));
+		let mantissa = Alt((
+			(whole, '.', fract).map(|(w,_,f)| w+f),
+			('.', fract).map(|(_,f)| f),
+			whole,
+		));
+
+		let ten = Ratio::from_integer(10i32.to_bigint().unwrap());
+		let exp = ('e', sign, digits).map(move |(_,s,e)| Pow::pow(&ten, s*e.0));
+		let exp = Alt((
+			exp, 
+			().map(|_| Ratio::from_integer(BigInt::one()))
+		));
+
+		let parser = (sign, mantissa, exp)
+			.map(|(s, m, e)| m * e * s)
+			.map(BigFloat);
+
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for f32 {
+	type O = f32;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigFloat>().clone()
+			.filter_map(|f| f.0.to_f32());
+
+		Rc::new(parser)
+	}
+}
+
+impl<'a> Generator<'a> for f64 {
+	type O = f64;
+	fn generate(ctx: &Context<'a>) -> Rc<DynParser<'a, Self::O>> {
+		let parser = ctx.parser::<BigFloat>().clone()
+			.filter_map(|f| f.0.to_f64());
+		Rc::new(parser)
+	}
+}
+
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use proptest::*;
+    use proptest::prelude::*;
 
     #[test]
     fn bigint_parser() {
@@ -224,6 +294,16 @@ mod test {
     	assert_parse!(Some(255u8), parser::<u8>(), "0b11111111");
     }
 
+    #[test]
+    fn f32_parser() {
+    	assert_parse!(Some(0f32), parser::<f32>(), "0");
+    	assert_parse!(Some(1f32), parser::<f32>(), "1");
+    	assert_parse!(Some(-1f32), parser::<f32>(), "-1");
+
+    	assert_parse!(Some(1000f32), parser::<f32>(), "1e3");
+    	assert_parse!(Some(0.001f32), parser::<f32>(), "1e-3");
+    }
+
     proptest! {
     	#[test]
     	fn proptest_u8_dec(x in 0u8..=0xFFu8) {
@@ -280,6 +360,14 @@ mod test {
     	fn proptest_isize_dec(x in std::isize::MIN..=std::isize::MAX) {
     		let s = format!("{}", x);
     		assert_parse!(Some(x), parser::<isize>(), &s[..]);
+    	}
+    }
+
+    proptest! {
+    	#[test]
+    	fn proptest_f32(x in any::<f32>()) {
+    		let s = format!("{}", x);
+    		assert_parse!(Some(x), parser::<f32>(), &s[..]);
     	}
     }
 }

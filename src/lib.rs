@@ -130,6 +130,13 @@ pub trait ParserExt<'a>: Parser<'a> {
     {
         Named(self, name)
     }
+
+    fn opt(self) -> Opt<Self>
+    where
+        Self: Sized,
+    {
+        Opt(self)
+    }
 }
 
 impl<'a, P: Parser<'a> + ?Sized> ParserExt<'a> for P {}
