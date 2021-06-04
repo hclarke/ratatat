@@ -19,6 +19,7 @@ mod str;
 mod then;
 mod tuple;
 mod vec;
+mod string;
 
 pub use filter::*;
 pub use fnparser::FnParser;
