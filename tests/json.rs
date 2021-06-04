@@ -25,7 +25,7 @@ impl<'a> Generator<'a> for JsonValue {
         let non_quotes =
             Recognize(non_quotes).filter_map(|bytes| String::from_utf8(bytes.to_vec()).ok());
 
-        let string = ('"', non_quotes, '"').map(|x| x.1).named("string");
+        let string = parser::<String>().named("string");
 
         let pair = ParserExt::map((ws, string, ws, ':', value), |x| (x.1, x.4)).named("pair");
 
@@ -46,10 +46,7 @@ impl<'a> Generator<'a> for JsonValue {
 
         let boolean = parser::<bool>();
 
-        let number = FnParser(
-            move |_ctx: &Context<'a>, _limit: usize, _pos: &mut usize| -> Option<f64> { None },
-            Some("number"),
-        );
+        let number = parser::<f64>();
 
         let value = Alt((
             ("null",).map(|_| JsonValue::Null).named("null"),
