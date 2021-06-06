@@ -1,6 +1,6 @@
 [package]
 name = "ratatat"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["harri"]
 description = "expressive parser combinators with caching"
 license-file = "LICENSE"
