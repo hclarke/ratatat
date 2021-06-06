@@ -16,10 +16,10 @@ mod recognize;
 mod sep;
 mod slice;
 mod str;
+mod string;
 mod then;
 mod tuple;
 mod vec;
-mod string;
 
 pub use filter::*;
 pub use fnparser::FnParser;

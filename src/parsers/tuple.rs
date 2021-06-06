@@ -80,7 +80,7 @@ impl_tuple!(
 
 impl<'a> Parser<'a> for () {
     type O = ();
-    fn impl_parse(&self, ctx: &Context<'a>, limit: usize, pos: &mut usize) -> Option<Self::O> {
+    fn impl_parse(&self, _ctx: &Context<'a>, _limit: usize, _pos: &mut usize) -> Option<Self::O> {
         Some(())
     }
 }
