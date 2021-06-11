@@ -7,9 +7,9 @@ use core::ops::RangeBounds;
 use std::ops::Deref;
 use std::rc::Rc;
 
-#[cfg(test)]
 #[macro_use]
 mod test_macro {
+    #[macro_export]
     macro_rules! assert_parse {
         ($exp: expr, $parser: expr, $input: expr) => {
             let input: &[u8] = $input.as_ref();
@@ -136,6 +136,27 @@ pub trait ParserExt<'a>: Parser<'a> {
         Self: Sized,
     {
         Opt(self)
+    }
+
+    fn not(self) -> Not<Self>
+    where
+        Self: Sized,
+    {
+        Not(self)
+    }
+
+    fn and<F:Parser<'a>>(self, f: F) -> And<Self, F> 
+    where
+        Self: Sized,
+    {
+        And(self, f)
+    }
+
+    fn and_not<F:Parser<'a>>(self, f:F) -> And<Self, Not<F>>  
+    where
+        Self: Sized,
+    {
+        self.and(f.not())
     }
 }
 

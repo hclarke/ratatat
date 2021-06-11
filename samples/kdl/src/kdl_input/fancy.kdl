@@ -1,0 +1,11 @@
+hello "world"
+
+nested "arg1" "arg 2" 3 key="val" r#""four""# key2="val2" {
+	one; two; three
+	four {
+		inner!
+	}
+}
+
+
+

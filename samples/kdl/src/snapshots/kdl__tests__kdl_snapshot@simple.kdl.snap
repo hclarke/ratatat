@@ -1,0 +1,26 @@
+---
+source: samples/kdl/src/lib.rs
+expression: vals
+input_file: samples/kdl/src/kdl_input/simple.kdl
+
+---
+Some([
+  KdlNode(
+    name: "first",
+    args: [],
+    vals: {},
+    body: [],
+  ),
+  KdlNode(
+    name: "second",
+    args: [],
+    vals: {},
+    body: [],
+  ),
+  KdlNode(
+    name: "third",
+    args: [],
+    vals: {},
+    body: [],
+  ),
+])

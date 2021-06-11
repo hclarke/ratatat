@@ -1,0 +1,62 @@
+---
+source: samples/kdl/src/lib.rs
+expression: vals
+input_file: samples/kdl/src/kdl_input/fancy.kdl
+
+---
+Some([
+  KdlNode(
+    name: "hello",
+    args: [
+      String("world"),
+    ],
+    vals: {},
+    body: [],
+  ),
+  KdlNode(
+    name: "nested",
+    args: [
+      String("arg1"),
+      String("arg 2"),
+      Number(3),
+      String("\"four\""),
+    ],
+    vals: {
+      "key": String("val"),
+      "key2": String("val2"),
+    },
+    body: [
+      KdlNode(
+        name: "one",
+        args: [],
+        vals: {},
+        body: [],
+      ),
+      KdlNode(
+        name: "two",
+        args: [],
+        vals: {},
+        body: [],
+      ),
+      KdlNode(
+        name: "three",
+        args: [],
+        vals: {},
+        body: [],
+      ),
+      KdlNode(
+        name: "four",
+        args: [],
+        vals: {},
+        body: [
+          KdlNode(
+            name: "inner!",
+            args: [],
+            vals: {},
+            body: [],
+          ),
+        ],
+      ),
+    ],
+  ),
+])

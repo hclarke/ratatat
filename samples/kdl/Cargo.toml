@@ -1,0 +1,15 @@
+[package]
+name = "kdl"
+version = "0.1.1"
+authors = ["harri"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ratatat = { path = "../.." }
+indexmap = {version = "1.6.2", features=["serde-1"] }
+serde = "1.0.126"
+
+[dev-dependencies]
+insta = { version = "1.7.1", features = ["ron", "glob"] }

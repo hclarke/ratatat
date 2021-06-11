@@ -20,6 +20,8 @@ mod string;
 mod then;
 mod tuple;
 mod vec;
+mod not;
+mod and;
 
 pub use filter::*;
 pub use fnparser::FnParser;
@@ -32,3 +34,5 @@ pub use recognize::*;
 pub use sep::Sep;
 pub use then::Then;
 pub use tuple::Alt;
+pub use not::Not;
+pub use and::And;

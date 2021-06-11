@@ -1,3 +1,6 @@
+[workspace]
+members = ["samples/*"]
+
 [package]
 name = "ratatat"
 version = "0.1.1"
@@ -13,13 +16,13 @@ edition = "2018"
 array-init = "2.0.0"
 bstr = "0.2.16"
 elsa = "1.4.0"
-insta = { version = "1.7.1", features = ["ron", "glob"] }
 num = "0.4.0"
 
 [dev-dependencies]
 indexmap = {version = "1.6.2", features=["serde-1"] }
 proptest = "1.0.0"
 serde = "1.0.126"
+insta = { version = "1.7.1", features = ["ron", "glob"] }
 
 [features]
 traces = []
